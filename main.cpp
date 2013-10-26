@@ -6,6 +6,10 @@ and may not be redistributed without written permission.*/
 #include "SDL/SDL_image.h"
 #include "SDL/SDL_ttf.h"
 #include <string>
+#include <iostream>
+#include <vector>
+#include "Personaje.h"
+//using namespace std;
 
 //Screen attributes
 const int SCREEN_WIDTH = 640;
@@ -31,34 +35,7 @@ SDL_Color textColor = { 0, 0, 0 };
 
 SDL_Surface *load_image( std::string filename )
 {
-    //The image that's loaded
-    SDL_Surface* loadedImage = NULL;
-
-    //The optimized surface that will be used
-    SDL_Surface* optimizedImage = NULL;
-
-    //Load the image
-    loadedImage = IMG_Load( filename.c_str() );
-
-    //If the image loaded
-    if( loadedImage != NULL )
-    {
-        //Create an optimized surface
-        optimizedImage = SDL_DisplayFormat( loadedImage );
-
-        //Free the old surface
-        SDL_FreeSurface( loadedImage );
-
-        //If the surface was optimized
-        if( optimizedImage != NULL )
-        {
-            //Color key surface
-            SDL_SetColorKey( optimizedImage, SDL_SRCCOLORKEY, SDL_MapRGB( optimizedImage->format, 0, 0xFF, 0xFF ) );
-        }
-    }
-
-    //Return the optimized surface
-    return optimizedImage;
+    return IMG_Load( filename.c_str() );
 }
 
 void apply_surface( int x, int y, SDL_Surface* source, SDL_Surface* destination, SDL_Rect* clip = NULL )
@@ -170,20 +147,22 @@ int main( int argc, char* args[] )
     personaje[2]=load_image("personaje/03.png");
     personaje[3]=load_image("personaje/04.png");
 
+    SDL_Surface* meta=load_image("meta.png");
+
     int personaje_x=0;
     int personaje_y=0;
 
-    int duracion_animacion=10;
+    int duracion_animacion=20;
     int cuadro_actual=0;
     int iteracion=0;
 
     bool moviendose=false;
 
     //Render the text
-    up = TTF_RenderText_Solid( font, "Up", textColor );
-    down = TTF_RenderText_Solid( font, "Down", textColor );
-    left = TTF_RenderText_Solid( font, "Left", textColor );
-    right = TTF_RenderText_Solid( font, "Right", textColor );
+    up = TTF_RenderText_Solid( font, "Arriba", textColor );
+    down = TTF_RenderText_Solid( font, "Abajo", textColor );
+    left = TTF_RenderText_Solid( font, "Izquierda", textColor );
+    right = TTF_RenderText_Solid( font, "Derecha", textColor );
 
     //While the user hasn't quit
     while( quit == false )
@@ -201,6 +180,8 @@ int main( int argc, char* args[] )
 
         //Apply the background
         apply_surface( 0, 0, background, screen );
+
+        apply_surface(400,300,meta,screen);
 
         if(moviendose)
             apply_surface(personaje_x,personaje_y,personaje[cuadro_actual],screen);
@@ -248,6 +229,7 @@ int main( int argc, char* args[] )
         {
             return 1;
         }
+
         iteracion++;
         if(iteracion==duracion_animacion)
         {
@@ -258,6 +240,17 @@ int main( int argc, char* args[] )
             }
             iteracion=0;
         }
+
+        for(int i=0;i<50;i++)
+        {
+            for(int j=0;j<50;j++)
+            {
+                if(personaje_x==100+i && personaje_y+j==100)
+                    exit(0);
+            }
+        }
+//        std::cout<<"X: "<<personaje_x<<std::endl;
+//        std::cout<<"Y: "<<personaje_y<<std::endl;
     }
 
     //Clean up
